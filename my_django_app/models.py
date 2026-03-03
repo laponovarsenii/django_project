@@ -33,7 +33,7 @@ class Task(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # "Уникально для даты" (календарной даты создания)
+
     created_date = models.DateField(editable=False, default=timezone.localdate)
 
     class Meta:
