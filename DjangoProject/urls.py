@@ -18,7 +18,13 @@ from django.contrib import admin
 from django.urls import path
 from my_django_app.views import hello
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', hello),
+    path("admin/", admin.site.urls),
+    path("", hello),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
