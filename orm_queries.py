@@ -2,7 +2,7 @@ import os
 import django
 from datetime import timedelta
 
-# Инициализация Django при запуске как обычного скрипта
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "DjangoProject.settings")
 django.setup()
 
