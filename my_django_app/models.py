@@ -2,7 +2,6 @@ from django.db import models
 from django.utils import timezone
 
 
-
 class Task(models.Model):
     STATUS_NEW = "new"
     STATUS_IN_PROGRESS = "in_progress"
@@ -18,7 +17,7 @@ class Task(models.Model):
         (STATUS_DONE, "Done"),
     ]
 
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True)
 
     categories = models.ManyToManyField("Category", related_name="tasks", blank=True)
@@ -33,17 +32,12 @@ class Task(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
-
     created_date = models.DateField(editable=False, default=timezone.localdate)
 
     class Meta:
+        db_table = "task_manager_task"
         ordering = ["-created_at"]
-        constraints = [
-            models.UniqueConstraint(
-                fields=["title", "created_date"],
-                name="uniq_task_title_per_created_date",
-            )
-        ]
+        verbose_name = "Task"
 
     def __str__(self):
         return self.title
@@ -58,7 +52,7 @@ class SubTask(models.Model):
 
     STATUS_CHOICES = Task.STATUS_CHOICES
 
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True)
 
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="subtasks")
@@ -73,16 +67,20 @@ class SubTask(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        db_table = "task_manager_subtask"
         ordering = ["-created_at"]
+        verbose_name = "SubTask"
 
     def __str__(self):
-        return f"{self.task.title} — {self.title}"
+        return self.title
+
 
 class Category(models.Model):
     name = models.CharField(max_length=255, unique=True)
 
     class Meta:
-        ordering = ["name"]
+        db_table = "task_manager_category"
+        verbose_name = "Category"
 
     def __str__(self):
         return self.name
