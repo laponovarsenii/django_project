@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'my_django_app.apps.MyDjangoAppConfig',
+    'rest_framework',
+
 ]
 
 MIDDLEWARE = [
@@ -79,24 +81,24 @@ WSGI_APPLICATION = 'DjangoProject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-if  env.bool("USE_REMOTE"):
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": env.str("DB_NAME"),
-            "USER": env.str("DB_USER"),
-            "PASSWORD": env.str("DB_PASSWORD"),
-            "HOST": env.str("DB_HOST"),
-            "PORT": env.int("DB_PORT"),
-        }
-    }
+# if  env.bool("USE_REMOTE"):
+#     DATABASES = {
+#         "default": {
+#             "ENGINE": "django.db.backends.postgresql",
+#             "NAME": env.str("DB_NAME"),
+#             "USER": env.str("DB_USER"),
+#             "PASSWORD": env.str("DB_PASSWORD"),
+#             "HOST": env.str("DB_HOST"),
+#             "PORT": env.int("DB_PORT"),
+#         }
+#     }
         # 'secondary': {
         #     'ENGINE': 'django.db.backends.sqlite3',
         #     'NAME': BASE_DIR / 'secondary.db',
         # }
 
-else:
-    DATABASES = {
+# else:
+DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
