@@ -21,6 +21,7 @@ from my_django_app.views import (
     create_new_task,
     get_tasks,
     task_stats,
+    tasks_by_weekday,
     SubTaskListCreateView,
     SubTaskDetailUpdateDeleteView,
 )
@@ -33,8 +34,8 @@ urlpatterns = [
     path("get_tasks/", get_tasks),
     path("get_tasks/<int:pk>/", get_tasks),
     path("task_stats/", task_stats),
+    path("tasks-by-weekday/", tasks_by_weekday),
 
     path("subtasks/", SubTaskListCreateView.as_view()),
     path("subtasks/<int:pk>/", SubTaskDetailUpdateDeleteView.as_view()),
 ]
-
