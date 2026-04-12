@@ -7,13 +7,37 @@ from my_django_app.models import Task, SubTask, Category
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ['id', 'title', 'description', 'status', 'deadline']
+        fields = [
+            'id',
+            'title',
+            'description',
+            'categories',
+            'status',
+            'deadline',
+            'created_at',
+            'created_date',
+        ]
+        read_only_fields = ['created_at', 'created_date']
+
+    def validate_deadline(self, value):
+        if value is not None and value < timezone.now():
+            raise serializers.ValidationError('Deadline cannot be in the past.')
+        return value
 
 
 class SubTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubTask
-        fields = ['id', 'title', 'description', 'task', 'status', 'deadline', 'created_at']
+        fields = [
+            'id',
+            'title',
+            'description',
+            'task',
+            'status',
+            'deadline',
+            'created_at',
+        ]
+        read_only_fields = ['created_at']
 
 
 class SubTaskCreateSerializer(serializers.ModelSerializer):
@@ -21,7 +45,15 @@ class SubTaskCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SubTask
-        fields = ['id', 'title', 'description', 'task', 'status', 'deadline', 'created_at']
+        fields = [
+            'id',
+            'title',
+            'description',
+            'task',
+            'status',
+            'deadline',
+            'created_at',
+        ]
 
 
 class CategoryCreateSerializer(serializers.ModelSerializer):
@@ -62,24 +94,3 @@ class TaskDetailSerializer(serializers.ModelSerializer):
             'created_date',
             'subtasks',
         ]
-
-
-class TaskCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Task
-        fields = [
-            'id',
-            'title',
-            'description',
-            'categories',
-            'status',
-            'deadline',
-            'created_at',
-            'created_date',
-        ]
-        read_only_fields = ['created_at', 'created_date']
-
-    def validate_deadline(self, value):
-        if value is not None and value < timezone.now():
-            raise serializers.ValidationError('Deadline cannot be in the past.')
-        return value
