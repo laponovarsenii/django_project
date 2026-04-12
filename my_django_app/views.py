@@ -1,16 +1,17 @@
 from django.http import HttpResponse
 from django.utils import timezone
-from rest_framework import generics, filters
-from rest_framework.decorators import api_view
+from rest_framework import generics, filters, viewsets
+from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
-from rest_framework.pagination import PageNumberPagination
 
-from my_django_app.models import Task, SubTask
+from my_django_app.models import Task, SubTask, Category
 from my_django_app.serealizers.task_serealizer import (
     TaskSerializer,
     TaskDetailSerializer,
     SubTaskSerializer,
     SubTaskCreateSerializer,
+    CategorySerializer,
+    CategoryCreateSerializer,
 )
 
 
@@ -102,16 +103,11 @@ def task_stats(request):
     return Response(data)
 
 
-class SubTaskPagination(PageNumberPagination):
-    page_size = 5
-
-
 class SubTaskListCreateView(generics.ListCreateAPIView):
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['title', 'description']
     ordering_fields = ['created_at']
     ordering = ['-created_at']
-    pagination_class = SubTaskPagination
 
     def get_queryset(self):
         queryset = SubTask.objects.all().order_by('-created_at')
@@ -144,3 +140,21 @@ class SubTaskRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method == 'GET':
             return SubTaskSerializer
         return SubTaskCreateSerializer
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return CategoryCreateSerializer
+        return CategorySerializer
+
+    @action(detail=True, methods=['get'])
+    def count_tasks(self, request, pk=None):
+        category = self.get_object()
+        return Response({
+            'category_id': category.id,
+            'category_name': category.name,
+            'tasks_count': category.tasks.count(),
+        })

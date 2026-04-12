@@ -16,7 +16,9 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+
 from my_django_app.views import (
     hello,
     task_stats,
@@ -25,7 +27,11 @@ from my_django_app.views import (
     TaskRetrieveUpdateDestroyView,
     SubTaskListCreateView,
     SubTaskRetrieveUpdateDestroyView,
+    CategoryViewSet,
 )
+
+router = DefaultRouter()
+router.register(r'categories', CategoryViewSet, basename='category')
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -38,4 +44,6 @@ urlpatterns = [
 
     path("subtasks/", SubTaskListCreateView.as_view()),
     path("subtasks/<int:pk>/", SubTaskRetrieveUpdateDestroyView.as_view()),
+
+    path("", include(router.urls)),
 ]
