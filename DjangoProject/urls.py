@@ -17,33 +17,18 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-
-from my_django_app.views import (
-    hello,
-    task_stats,
-    tasks_by_weekday,
-    TaskListCreateView,
-    TaskRetrieveUpdateDestroyView,
-    SubTaskListCreateView,
-    SubTaskRetrieveUpdateDestroyView,
-    CategoryViewSet,
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+    TokenVerifyView,
 )
 
-router = DefaultRouter()
-router.register(r'categories', CategoryViewSet, basename='category')
-
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("", hello),
+    path('admin/', admin.site.urls),
+    # JWT endpoints
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 
-    path("tasks/", TaskListCreateView.as_view()),
-    path("tasks/<int:pk>/", TaskRetrieveUpdateDestroyView.as_view()),
-    path("tasks-by-weekday/", tasks_by_weekday),
-    path("task_stats/", task_stats),
-
-    path("subtasks/", SubTaskListCreateView.as_view()),
-    path("subtasks/<int:pk>/", SubTaskRetrieveUpdateDestroyView.as_view()),
-
-    path("", include(router.urls)),
+    path('api/', include('my_django_app.urls')),
 ]

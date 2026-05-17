@@ -5,6 +5,8 @@ from my_django_app.models import Task, SubTask, Category
 
 
 class TaskSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
+
     class Meta:
         model = Task
         fields = [
@@ -16,8 +18,10 @@ class TaskSerializer(serializers.ModelSerializer):
             'deadline',
             'created_at',
             'created_date',
+            'owner',   # добавили
         ]
-        read_only_fields = ['created_at', 'created_date']
+        read_only_fields = ['created_at', 'created_date', 'owner']
+    # ...
 
     def validate_deadline(self, value):
         if value is not None and value < timezone.now():
@@ -87,6 +91,7 @@ class CategoryCreateSerializer(serializers.ModelSerializer):
 
 class TaskDetailSerializer(serializers.ModelSerializer):
     subtasks = SubTaskSerializer(many=True, read_only=True)
+    owner = serializers.ReadOnlyField(source='owner.username')
 
     class Meta:
         model = Task
@@ -100,4 +105,5 @@ class TaskDetailSerializer(serializers.ModelSerializer):
             'created_at',
             'created_date',
             'subtasks',
+            'owner',
         ]

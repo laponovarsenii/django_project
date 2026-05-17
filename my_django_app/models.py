@@ -1,5 +1,8 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import User
+
+
 
 
 class Task(models.Model):
@@ -26,6 +29,14 @@ class Task(models.Model):
         max_length=20,
         choices=STATUS_CHOICES,
         default=STATUS_NEW,
+    )
+
+    owner = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='tasks',
+        null=True,  # временно True, чтобы миграция не сломала существующие строки
+        blank=True,
     )
 
     deadline = models.DateTimeField(null=True, blank=True)

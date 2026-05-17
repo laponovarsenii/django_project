@@ -1,8 +1,9 @@
 from django.http import HttpResponse
 from django.utils import timezone
 from rest_framework import generics, filters, viewsets
-from rest_framework.decorators import api_view, action
+from rest_framework.decorators import api_view, action, permission_classes
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
 
 from my_django_app.models import Task, SubTask, Category
 from my_django_app.serealizers.task_serealizer import (
@@ -12,6 +13,12 @@ from my_django_app.serealizers.task_serealizer import (
     SubTaskCreateSerializer,
     CategorySerializer,
     CategoryCreateSerializer,
+)
+
+from .permissions import (
+    IsAuthorOrReadOnly,
+    IsAdminOrReadOnly,
+    IsAuthenticatedCreateReadOnly,
 )
 
 
@@ -26,6 +33,7 @@ class TaskListCreateView(generics.ListCreateAPIView):
     search_fields = ['title', 'description']
     ordering_fields = ['created_at']
     ordering = ['-created_at']
+    permission_classes = [IsAuthenticatedCreateReadOnly] 
 
     def get_queryset(self):
         queryset = Task.objects.all()
@@ -41,13 +49,25 @@ class TaskListCreateView(generics.ListCreateAPIView):
 
         return queryset
 
+    def perform_create(self, serializer):
+
+        for owner_field in ('author', 'user', 'owner', 'created_by', 'creator'):
+            if owner_field in serializer.fields or hasattr(serializer.Meta.model, owner_field):
+                serializer.save(**{owner_field: self.request.user})
+                return
+        try:
+            serializer.save(author=self.request.user)
+        except TypeError:
+            serializer.save()
 
 class TaskRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskDetailSerializer
+    permission_classes = [IsAuthorOrReadOnly]
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def tasks_by_weekday(request):
     weekday = request.query_params.get('weekday')
 
@@ -84,6 +104,7 @@ def tasks_by_weekday(request):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def task_stats(request):
     total_tasks = Task.objects.count()
 
@@ -108,6 +129,7 @@ class SubTaskListCreateView(generics.ListCreateAPIView):
     search_fields = ['title', 'description']
     ordering_fields = ['created_at']
     ordering = ['-created_at']
+    permission_classes = [IsAuthenticatedCreateReadOnly]
 
     def get_queryset(self):
         queryset = SubTask.objects.all().order_by('-created_at')
@@ -132,9 +154,16 @@ class SubTaskListCreateView(generics.ListCreateAPIView):
             return SubTaskSerializer
         return SubTaskCreateSerializer
 
+    def perform_create(self, serializer):
+        try:
+            serializer.save(author=self.request.user)
+        except TypeError:
+            serializer.save()
+
 
 class SubTaskRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = SubTask.objects.all()
+    permission_classes = [IsAuthorOrReadOnly]
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -144,6 +173,7 @@ class SubTaskRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
+    permission_classes = [IsAdminOrReadOnly]
 
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:
