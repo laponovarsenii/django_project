@@ -1,8 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
-
-
+from rest_framework import settings
 
 
 class Task(models.Model):
@@ -67,6 +66,13 @@ class SubTask(models.Model):
     description = models.TextField(blank=True)
 
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="subtasks")
+    owner = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='subtasks',
+        null=True,
+        blank=True,
+    )
 
     status = models.CharField(
         max_length=20,

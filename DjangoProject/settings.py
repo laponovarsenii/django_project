@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'my_django_app.apps.MyDjangoAppConfig',
     'rest_framework',
+    'drf_yasg',
 
 ]
 

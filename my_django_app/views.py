@@ -3,7 +3,7 @@ from django.utils import timezone
 from rest_framework import generics, filters, viewsets
 from rest_framework.decorators import api_view, action, permission_classes
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from my_django_app.models import Task, SubTask, Category
 from my_django_app.serealizers.task_serealizer import (
@@ -56,7 +56,7 @@ class TaskListCreateView(generics.ListCreateAPIView):
                 serializer.save(**{owner_field: self.request.user})
                 return
         try:
-            serializer.save(author=self.request.user)
+            serializer.save(owner=self.request.user)
         except TypeError:
             serializer.save()
 
@@ -156,7 +156,7 @@ class SubTaskListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         try:
-            serializer.save(author=self.request.user)
+            serializer.save(owner=self.request.user)
         except TypeError:
             serializer.save()
 
@@ -188,3 +188,18 @@ class CategoryViewSet(viewsets.ModelViewSet):
             'category_name': category.name,
             'tasks_count': category.tasks.count(),
         })
+
+class MyTasksListView(generics.ListAPIView):
+    serializer_class = TaskSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Task.objects.filter(owner=self.request.user).order_by('-created_at')
+
+
+class MySubTasksListView(generics.ListAPIView):
+    serializer_class = SubTaskSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return SubTask.objects.filter(owner=self.request.user).order_by('-created_at')
