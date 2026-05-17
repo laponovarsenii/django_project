@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'my_django_app.apps.MyDjangoAppConfig',
     'rest_framework',
     'drf_yasg',
+    'rest_framework_simplejwt.token_blacklist',
 
 ]
 

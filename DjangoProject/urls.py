@@ -27,6 +27,8 @@ from rest_framework import permissions as drf_permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
+from my_django_app.auth_views import RegisterView, LoginView, RefreshTokenViewCustom, LogoutView
+
 schema_view = get_schema_view(
    openapi.Info(
       title="DjangoProject API",
@@ -53,4 +55,10 @@ urlpatterns = [
     path('swagger(<format>\.json|\.yaml)', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+
+
+    path('api/auth/register/', RegisterView.as_view(), name='auth_register'),
+    path('api/auth/login/', LoginView.as_view(), name='auth_login'),
+    path('api/auth/refresh/', RefreshTokenViewCustom.as_view(), name='token_refresh_custom'),
+    path('api/auth/logout/', LogoutView.as_view(), name='auth_logout'),
 ]
